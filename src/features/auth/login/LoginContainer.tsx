@@ -1,16 +1,11 @@
+import { LoginForm, TLoginField } from '@components/LoginForm/LoginForm';
 import React, { FC, Reducer, useReducer, useState } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
-import { ProviderId } from 'firebase/auth';
-import { LoginForm, TLoginField } from '@features/auth/components/LoginForm/LoginForm';
-import { Divider, Link, Typography } from '@mui/material';
-import GoogleIcon from '@mui/icons-material/Google';
-import GitHubIcon from '@mui/icons-material/GitHub';
-import LoginIcon from '@mui/icons-material/Login';
+import { Typography } from '@mui/material';
 
 import './LoginContainer.css';
 import { validateEmail } from './utils';
-import { ALLOWED_OAUTH_PROVIDERS, useAuthContext } from '../AuthContextProvider';
-import { TLoginWithEmailAndPasswordResult } from '../types';
+import { useAuthContext } from '../AuthContextProvider';
+import { useHistory, useLocation } from 'react-router-dom';
 
 type TLoginFormFieldState = Omit<TLoginField, 'onChange'>;
 
@@ -36,21 +31,10 @@ function reducer(state: TLoginFormFieldState, action: Action): TLoginFormFieldSt
   }
 }
 
-const getOAuthProviderIcon = (provider: string) => {
-  switch (provider) {
-    case ProviderId.GOOGLE:
-      return <GoogleIcon fontSize="inherit" />;
-    case ProviderId.GITHUB:
-      return <GitHubIcon fontSize="inherit" />;
-    default:
-      return <LoginIcon fontSize="inherit" />;
-  }
-};
-
 export const LoginContainer: FC = () => {
   const history = useHistory();
   const { state: locationState } = useLocation<{ from: string }>();
-  const { loginWithEmailAndPassword, loginWithOauthPopup } = useAuthContext();
+  const { loginWithEmailAndPassword } = useAuthContext();
   const [authError, setAuthError] = useState('');
   const [emailState, dispatchEmail] = useReducer<Reducer<TLoginFormFieldState, Action>>(reducer, {
     name: 'email',
@@ -61,16 +45,6 @@ export const LoginContainer: FC = () => {
     name: 'password',
     value: '',
   });
-
-  const processLogin = (loginPromise: Promise<TLoginWithEmailAndPasswordResult>) => {
-    return loginPromise
-      .then(() => {
-        history.push(locationState?.from || '/admin');
-      })
-      .catch((error) => {
-        setAuthError(error?.message || 'error');
-      });
-  };
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -92,15 +66,13 @@ export const LoginContainer: FC = () => {
     }
 
     if (valid) {
-      processLogin(loginWithEmailAndPassword(emailState.value, passwordState.value));
-    }
-  };
-
-  const onOauthLogin = (e: React.MouseEvent<HTMLElement>) => {
-    e.preventDefault();
-    const dataset = (e.target as HTMLElement)?.closest<HTMLLinkElement>('.oauth-login-container__item')?.dataset;
-    if (dataset?.provider) {
-      processLogin(loginWithOauthPopup(dataset?.provider));
+      loginWithEmailAndPassword(emailState.value, passwordState.value)
+        .then(() => {
+          history.push(locationState?.from || '/admin');
+        })
+        .catch((error) => {
+          setAuthError(error?.message || 'error');
+        });
     }
   };
 
@@ -122,22 +94,6 @@ export const LoginContainer: FC = () => {
         }}
         onSubmit={onSubmit}
       />
-      <Divider />
-      <div className="oauth-login-container">
-        {Object.keys(ALLOWED_OAUTH_PROVIDERS).map((item) => {
-          return (
-            <Link
-              key={item}
-              href="#"
-              className="oauth-login-container__item"
-              data-provider={item}
-              onClick={onOauthLogin}
-            >
-              {getOAuthProviderIcon(item)}
-            </Link>
-          );
-        })}
-      </div>
     </div>
   );
 };

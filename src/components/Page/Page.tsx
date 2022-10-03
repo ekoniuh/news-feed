@@ -1,47 +1,32 @@
-import React, { FC, Fragment, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { EmailModal } from '@features/subscribeNotification/components/EmailModal/EmailModal';
-import { Dispatch } from '@app/store';
-import { fetchCategories } from '@features/categories/actions';
-import { fetchSources } from '@features/sources/actions';
-import { Header } from '@components/Header/Header';
-import { OfflineNotificationWatcher } from '@features/networkStatus/OfflineNotificationWatcher/OfflineNotificationWatcher';
-import { Footer } from '@components/Footer/Footer';
-
-const LS_EMAIL_SHOWN_KEY = 'newsfeed:email_modal_shown';
-const LS_VISITS_COUNT_KEY = 'newsfeed:visits_count';
-
-const currentVisitsCount: number = Number(localStorage.getItem(LS_VISITS_COUNT_KEY)) || 0;
-localStorage.setItem(LS_VISITS_COUNT_KEY, `${currentVisitsCount + 1}`);
+import React, { FC, Fragment } from 'react';
+import './Page.css';
+import { Navigation } from '../Navigation/Navigation';
 
 export const Page: FC = ({ children }) => {
-  const dispatch = useDispatch<Dispatch>();
-  const [emailModalShown, setEmailModalShown] = useState(
-    !localStorage.getItem(LS_EMAIL_SHOWN_KEY) && currentVisitsCount >= 3
-  );
-
-  React.useEffect(() => {
-    dispatch(fetchCategories());
-    dispatch(fetchSources());
-  }, []);
-
   return (
     <Fragment>
-      <EmailModal
-        shown={emailModalShown}
-        onClose={() => {
-          localStorage.setItem(LS_EMAIL_SHOWN_KEY, 'true');
-          setEmailModalShown(false);
-        }}
-      >
-        Hello
-      </EmailModal>
-      <Header />
+      <header className="header">
+        <div className="container">
+          <Navigation placement="header" className="header__navigation" />
+        </div>
+      </header>
 
       <main>{children}</main>
 
-      <Footer />
-      <OfflineNotificationWatcher />
+      <footer className="footer">
+        <div className="container">
+          <Navigation placement="footer" className="footer__navigation" />
+          <div className="footer__bottom">
+            <p className="footer__text">
+              Сделано на Frontend курсе в{' '}
+              <a className="footer__link" href="https://karpov.courses/frontend" target="_blank" rel="noreferrer">
+                Karpov.Courses
+              </a>
+            </p>
+            <p className="footer__text footer__text--gray">© 2021</p>
+          </div>
+        </div>
+      </footer>
     </Fragment>
   );
 };

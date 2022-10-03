@@ -1,55 +1,45 @@
-import React, { FC, MouseEventHandler } from 'react';
+import React, { FC } from 'react';
 import { NavLink } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import classNames from 'classnames';
 import './Navigation.css';
-import { CategoryNames } from '@features/categories/types';
-import { Locale } from '@features/locale/types';
+import { categoryNames } from '../../utils';
+import logo from '../../images/logo.svg';
 
 interface Props {
   className?: string;
-  onClick?: MouseEventHandler;
+  placement: 'header' | 'footer';
 }
 
-interface NavigationItemProps {
-  title?: string;
-  name?: string;
-}
-
-const NavigationItem: FC<NavigationItemProps> = ({ title, name = '' }) => {
+export const Navigation: FC<Props> = ({ className = '', placement = 'header' }) => {
   return (
-    <li className="navigation__item" key={name}>
-      <NavLink
-        to={`/${name}`}
-        className="navigation__link"
-        activeClassName="navigation__link--active"
-        isActive={(match) => match?.isExact || false}
-      >
-        {title}
+    <nav className={`grid navigation navigation--${placement} ${className}`}>
+      <NavLink to="/" className="navigation__logo">
+        <img className="navigation__logo-image" src={logo} alt="Логотип" />
       </NavLink>
-    </li>
-  );
-};
-
-export const Navigation: FC<Props> = ({ className = '', onClick }) => {
-  const { t, i18n } = useTranslation();
-
-  return (
-    <nav className={classNames('navigation', className)} onClick={onClick}>
       <ul className="navigation__list">
-        <NavigationItem title={t('category_news')} />
-        {Object.values(CategoryNames)
-          .filter((name) => {
-            if (i18n.language === Locale.ru) {
-              return true;
-            }
+        {['index', 'fashion', 'technologies', 'sport', 'karpov'].map((item) => {
+          return (
+            <li className="navigation__item" key={item}>
+              <NavLink
+                to={`/${item}`}
+                className="navigation__link"
+                activeClassName="navigation__link--active"
+                isActive={(match, location) => {
+                  if (match) {
+                    return true;
+                  }
 
-            return name !== CategoryNames['karpov.courses'];
-          })
-          .slice(0, 5)
-          .map((name) => {
-            return <NavigationItem key={name} name={name} title={t(`category_${name}`)} />;
-          })}
+                  if (item === 'index' && location.pathname === '/') {
+                    return true;
+                  }
+
+                  return false;
+                }}
+              >
+                {categoryNames[item]}
+              </NavLink>
+            </li>
+          );
+        })}
       </ul>
     </nav>
   );

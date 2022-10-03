@@ -1,23 +1,58 @@
-export interface User {
+export interface NewsAPI {
+  sources: Source[];
+  categories: Category[];
+  items: Article[];
+}
+
+export interface ArticleItemAPI {
+  id: number;
+  lang: string;
+  date: string;
+  title: string;
+  description: string;
+  image: string;
+  link: string;
+  text: string;
+  category: Category;
+  source: Source;
+  author?: string;
+}
+
+export interface RelatedArticlesAPI {
+  items: Article[];
+}
+
+export interface Source {
   id: number;
   name: string;
-  username: string;
-  email: string;
-  address: {
-    street: string;
-    suite: string;
-    city: string;
-    zipcode: string;
-    geo: {
-      lat: string;
-      lng: string;
-    };
-  };
-  phone: string;
-  website: string;
-  company: {
-    name: string;
-    catchPhrase: string;
-    bs: string;
+  site?: string;
+}
+
+export interface Category {
+  id: number;
+  name: string;
+}
+
+export interface Article {
+  id: number;
+  lang: string;
+  date: string;
+  title: string;
+  description: string;
+  image: string;
+  source_id: number;
+  category_id: number;
+}
+
+export interface IPartnerArticle {
+  id: string;
+  'company-name': string;
+  title: string;
+  description: string;
+  text: string;
+  image: string;
+  created: {
+    nanoseconds: number;
+    seconds: number;
   };
 }

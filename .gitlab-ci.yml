@@ -15,27 +15,13 @@ code_quality:
   only:
     - merge_requests
 
-test:
-  image: node:14.17.4
-  stage: test
-  allow_failure: true
-  before_script:
-    - npm ci
-  script:
-    - npm run test
-  only:
-    - merge_requests
-
 build:
   image: node:14.17.4
   stage: build
   before_script:
     - npm ci
-    - npm run locale:download
   script:
-    - SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN SENTRY_RELEASE=$CI_COMMIT_SHORT_SHA npm run build
-  after_script:
-    - find . -type f -iname \*.map -delete
+    - npm run build
   artifacts:
     paths:
       - dist
